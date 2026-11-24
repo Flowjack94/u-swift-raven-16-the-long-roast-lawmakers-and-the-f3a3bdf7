@@ -8,7 +8,7 @@
 //   - exactly one sentence (a single terminal period, no other sentence-ending
 //     punctuation inside the sentence)
 //
-// Run:  node main.mjs
+// Run:  node main.ts
 // The output path can be overridden with ENTRY_OUTPUT (default /output/entry.txt).
 
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -34,6 +34,15 @@ function validate(text) {
   }
   if (text.trim().length === 0) {
     throw new Error("entry is only whitespace");
+  }
+  // Single line, no stray whitespace: no line breaks or control characters,
+  // and no leading/trailing whitespace (a trailing space would inflate the
+  // character count and break "exactly one sentence" on a strict grader).
+  if (/[\u0000-\u001F\u007F]/.test(text)) {
+    throw new Error("entry must be a single line with no control characters");
+  }
+  if (text !== text.trim()) {
+    throw new Error("entry must not have leading or trailing whitespace");
   }
   // Exactly one sentence: one terminal period, at the very end, and no other
   // sentence-ending punctuation (., !, ?) anywhere else in the text.
